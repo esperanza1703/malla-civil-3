@@ -1,0 +1,286 @@
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Malla Interactiva - Ingeniería Civil</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f8ff;
+      color: #222;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      color: #1e3a8a;
+    }
+    .ciclo {
+      margin-bottom: 2rem;
+    }
+    .ciclo h2 {
+      background: #dbeafe;
+      padding: 0.5rem 1rem;
+      border-left: 5px solid #1d4ed8;
+    }
+    .curso {
+      display: flex;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid #bfdbfe;
+      border-radius: 0.5rem;
+      padding: 0.5rem 1rem;
+      margin: 0.3rem 0;
+      transition: background 0.3s;
+    }
+    .curso.aprobado {
+      background: #93c5fd;
+      text-decoration: line-through;
+    }
+    .curso.pendiente {
+      background: #e0f2fe;
+    }
+    .curso.desbloqueado {
+      background: #c7d2fe;
+    }
+    .curso.bloqueado {
+      background: #dbeafe;
+      color: #999;
+    }
+    .curso input {
+      margin-right: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Malla Interactiva - Ingeniería Civil</h1>
+  <div id="malla"></div>
+
+  <script>
+    const cursos = {
+  1: [
+    { nombre: "MATEMÁTICA I", id: "MAT1", estado: "Aprobado", creditos: 3, prereq: ["NIVMAT"] },
+    { nombre: "INTRODUCCIÓN A LA VIDA UNIVERSITARIA", id: "IVU", estado: "Aprobado", creditos: 2 },
+    { nombre: "LABORATORIO DE QUÍMICA GENERAL", id: "LQG", estado: "Convalidado", creditos: 0.28 },
+    { nombre: "QUÍMICA GENERAL", id: "QG", estado: "Convalidado", creditos: 2.72 },
+    { nombre: "INDIVIDUO Y MEDIO AMBIENTE", id: "IMA", estado: "Aprobado", creditos: 2, prereq: ["NIVRED"] },
+    { nombre: "INGLÉS I", id: "ING1", estado: "Aprobado", creditos: 3 },
+    { nombre: "COMPRENSIÓN Y REDACCIÓN DE TEXTOS I", id: "CRT1", estado: "Convalidado", creditos: 4, prereq: ["NIVRED"] }
+  ],
+  2: [
+    { nombre: "MATEMÁTICA II", id: "MAT2", estado: "En curso", creditos: 4, prereq: ["MAT1"] },
+    { nombre: "CIUDADANÍA Y REFLEXIÓN ÉTICA", id: "CRE", estado: "Aprobado", creditos: 3 },
+    { nombre: "INGLÉS II", id: "ING2", estado: "Aprobado", creditos: 3, prereq: ["ING1"] },
+    { nombre: "COMPRENSIÓN Y REDACCIÓN DE TEXTOS II", id: "CRT2", estado: "Convalidado", creditos: 4, prereq: ["CRT1"] },
+    { nombre: "ESTADÍSTICA DESCRIPTIVA Y PROBABILIDADES", id: "EDP", estado: "Aprobado", creditos: 3, prereq: ["MAT1"] },
+    { nombre: "PRINCIPIOS DE ALGORITMOS", id: "ALGO", estado: "En curso", creditos: 2 },
+    { nombre: "DIBUJO PARA INGENIERÍA", id: "DIBUJO", estado: "En curso", creditos: 2, prereq: ["MAT1", "IVU"] }
+  ],
+  3: [
+    { nombre: "LABORATORIO DE MECÁNICA CLÁSICA", id: "LMC", estado: "Pendiente", creditos: 0.22, prereq: ["MAT2"] },
+    { nombre: "MECÁNICA CLÁSICA", id: "MC", estado: "Pendiente", creditos: 3.78, prereq: ["MAT2"] },
+    { nombre: "CÁLCULO I", id: "CAL1", estado: "Pendiente", creditos: 4, prereq: ["MAT2"] },
+    { nombre: "INVESTIGACIÓN ACADÉMICA", id: "INVAC", estado: "Aprobado", creditos: 4, prereq: ["IMA", "CRT1"] },
+    { nombre: "GEOLOGÍA", id: "GEO", estado: "Pendiente", creditos: 2, prereq: ["DIBUJO"] },
+    { nombre: "PLANOS Y METRADOS DE OBRAS", id: "PMOC", estado: "Pendiente", creditos: 1, prereq: ["DIBUJO"] },
+    { nombre: "INGLÉS III", id: "ING3", estado: "En curso", creditos: 3, prereq: ["ING2"] },
+    { nombre: "PROBLEMAS Y DESAFÍOS EN EL PERÚ ACTUAL", id: "PDP", estado: "Convalidado", creditos: 3, prereq: ["IMA", "CRT1"] }
+  ],
+  4: [
+    { nombre: "FLUIDOS Y TERMODINÁMICA", id: "FT", estado: "Pendiente", creditos: 4.78, prereq: ["LMC", "MC", "CAL1"] },
+    { nombre: "LAB. DE FLUIDOS Y TERMODINÁMICA", id: "LFT", estado: "Pendiente", creditos: 0.22, prereq: ["LMC", "MC", "CAL1"] },
+    { nombre: "CÁLCULO II", id: "CAL2", estado: "Pendiente", creditos: 2, prereq: ["CAL1"] },
+    { nombre: "TOPOGRAFÍA - INGENIERIA CIVIL", id: "TOPO", estado: "Pendiente", creditos: 2, prereq: ["PMOC", "EDP"] },
+    { nombre: "MATERIALES DE CONSTRUCCIÓN", id: "MCNST", estado: "Pendiente", creditos: 3, prereq: ["CAL1", "LMC", "MC"] },
+    { nombre: "ESTÁTICA", id: "EST", estado: "Pendiente", creditos: 4, prereq: ["CAL1", "LMC", "MC"] },
+    { nombre: "INGLÉS IV", id: "ING4", estado: "Pendiente", creditos: 3, prereq: ["ING3"] }
+  ],
+  5: [
+    { nombre: "CONSTRUCCIÓN", id: "CONST", estado: "Pendiente", creditos: 3, prereq: ["PMOC", "MCNST"] },
+    { nombre: "FUNDAMENTOS DE DINÁMICA", id: "DIN", estado: "Pendiente", creditos: 4, prereq: ["EST"] },
+    { nombre: "GEOMÁTICA", id: "GEOM", estado: "Pendiente", creditos: 3, prereq: ["GEO", "TOPO"] },
+    { nombre: "TECNOLOGÍA DEL CONCRETO", id: "TCONC", estado: "Pendiente", creditos: 3, prereq: ["MCNST"] },
+    { nombre: "CÁLCULO AVANZADO PARA INGENIERÍA", id: "CALAV", estado: "Pendiente", creditos: 4, prereq: ["CAL2"] },
+    { nombre: "CÁLCULO PARA LA TOMA DE DECISIONES", id: "CTD", estado: "Pendiente", creditos: 2, prereq: ["CAL2"] },
+    { nombre: "HERRAMIENTAS INFORMÁTICAS PARA LA TOMA DE DECISIONES", id: "HINFO", estado: "Aprobado", creditos: 2 }
+  ],
+  6: [
+    { nombre: "HERRAMIENTAS PARA LA COMUNICACIÓN EFECTIVA", id: "COMEF", estado: "Convalidado", creditos: 3, prereq: ["INVAC"] },
+    { nombre: "CONSTRUCCIONES ESPECIALES", id: "CESP", estado: "Pendiente", creditos: 3, prereq: ["CONST"] },
+    { nombre: "MECÁNICA DE SUELOS", id: "MSUE", estado: "Pendiente", creditos: 3, prereq: ["DIN", "GEOM"] },
+    { nombre: "CURSO INTEGRADOR I - CIVIL", id: "CIIC", estado: "Pendiente", creditos: 3, prereq: ["CONST", "GEOM", "TCONC"] },
+    { nombre: "MECÁNICA DE FLUIDOS", id: "MFLU", estado: "Pendiente", creditos: 3, prereq: ["DIN"] },
+    { nombre: "ELASTICIDAD Y RESISTENCIA DE MATERIALES", id: "ERM", estado: "Pendiente", creditos: 3, prereq: ["CALAV", "CTD", "DIN"] }
+  ],
+  7: [
+    { nombre: "INGENIERÍA GEOTÉCNICA", id: "GEOT", estado: "Pendiente", creditos: 3, prereq: ["CIIC", "MSUE"] },
+    { nombre: "MODELADO DE INFORMACIÓN DE EDIFICACIONES - BIM", id: "BIM", estado: "Pendiente", creditos: 3, prereq: ["CESP"] },
+    { nombre: "INGENIERÍA DE CARRETERAS", id: "CAR", estado: "Pendiente", creditos: 2, prereq: ["MSUE", "GEOM"] },
+    { nombre: "INSTALACIONES EN EDIFICACIONES", id: "INST", estado: "Pendiente", creditos: 2, prereq: ["CESP", "MFLU"] },
+    { nombre: "HIDRÁULICA DE CANALES", id: "HIDC", estado: "Pendiente", creditos: 2, prereq: ["CIIC", "MFLU"] },
+    { nombre: "ANÁLISIS ESTRUCTURAL I", id: "AE1", estado: "Pendiente", creditos: 4, prereq: ["ERM", "CIIC"] },
+    { nombre: "FORMACIÓN PARA LA EMPLEABILIDAD", id: "FEMP", estado: "En curso", creditos: 3, prereq: ["COMEF"] }
+  ],
+  8: [
+    { nombre: "ANÁLISIS ESTRUCTURAL II", id: "AE2", estado: "Pendiente", creditos: 4, prereq: ["AE1"] },
+    { nombre: "HIDROLOGÍA APLICADA", id: "HIDR", estado: "Pendiente", creditos: 3, prereq: ["HIDC"] },
+    { nombre: "SEMINARIO DE INGENIERÍA CIVIL", id: "SEMIC", estado: "Pendiente", creditos: 2, prereq: ["HIDC", "GEOT", "AE1"] },
+    { nombre: "MECÁNICA DE SUELOS APLICADA", id: "MSUEA", estado: "Pendiente", creditos: 2, prereq: ["GEOT"] },
+    { nombre: "ESTIMACIÓN DE COSTOS Y PLANIFICACIÓN DE OBRA", id: "COSTOS", estado: "Pendiente", creditos: 3, prereq: ["INST"] },
+    { nombre: "ADMINISTRACIÓN Y ORG. DE EMPRESAS CONSTRUCTORAS", id: "ADMINOBRA", estado: "Pendiente", creditos: 3, prereq: ["BIM", "INST"] },
+    { nombre: "CONSTRUCCIÓN DE CARRETERAS", id: "CCAR", estado: "Pendiente", creditos: 3, prereq: ["CAR"] },
+    { nombre: "ÉTICA PROFESIONAL", id: "ETICA", estado: "Aprobado", creditos: 2, prereq: ["FEMP", "HINFO"] }
+  ],
+  9: [
+    { nombre: "GESTIÓN DE PROYECTOS DE CONSTRUCCIÓN", id: "GPROY", estado: "Pendiente", creditos: 3, prereq: ["COSTOS", "ADMINOBRA"] },
+    { nombre: "INGENIERÍA DE CIMENTACIONES", id: "CIM", estado: "Pendiente", creditos: 3, prereq: ["MSUEA"] },
+    { nombre: "PAVIMENTOS", id: "PAV", estado: "Pendiente", creditos: 3, prereq: ["MSUEA", "CCAR"] },
+    { nombre: "INGENIERÍA DE LOS RECURSOS HIDRÁULICOS", id: "REHIDR", estado: "Pendiente", creditos: 3, prereq: ["HIDR"] },
+    { nombre: "SISTEMA INTEGRADO DE GESTIÓN EN LA CONSTRUCCIÓN", id: "SISG", estado: "Pendiente", creditos: 4, prereq: ["COSTOS"] },
+    { nombre: "FORMACIÓN PARA LA INVESTIGACIÓN - CIVIL", id: "INVFOR", estado: "Pendiente", creditos: 4, prereq: ["SEMIC"] },
+    { nombre: "CONCRETO ARMADO", id: "CARM", estado: "Pendiente", creditos: 4, prereq: ["AE2"] }
+  ],
+  10: [
+    { nombre: "INGENIERÍA SISMORRESISTENTE", id: "SISMO", estado: "Pendiente", creditos: 3, prereq: ["CIM", "CARM"] },
+    { nombre: "GESTIÓN DE PROYECTOS DE INVERSIÓN PÚBLICA", id: "GPIP", estado: "Pendiente", creditos: 3, prereq: ["GPROY"] },
+    { nombre: "TALLER DE INVESTIGACIÓN - CIVIL", id: "TALLINV", estado: "Pendiente", creditos: 4, prereq: ["INVFOR"] },
+    { nombre: "CURSO INTEGRADOR II - CIVIL", id: "CIIC2", estado: "Pendiente", creditos: 3, prereq: ["CIIC", "GPROY", "CIM"] },
+    { nombre: "FUNDAMENTOS DE METODOLOGÍA VDC EN EDIFICACIONES", id: "VDC", estado: "Pendiente", creditos: 3, prereq: ["GPROY", "BIM"] },
+    { nombre: "SEGURIDAD Y SALUD OCUPACIONAL EN OBRAS DE CONSTRUCCIÓN", id: "SEG", estado: "Pendiente", creditos: 3, prereq: ["SISG", "GPROY"] },
+    { nombre: "SOSTENIBILIDAD AMBIENTAL EN LA CONSTRUCCIÓN", id: "SOST", estado: "Pendiente", creditos: 3, prereq: ["HIDR"] },
+    { nombre: "ANÁLISIS DE ESTRUCTURAS POR ELEMENTOS FINITOS", id: "FEM", estado: "Pendiente", creditos: 4, prereq: ["CARM"] },
+    { nombre: "MÉTODOS NUMÉRICOS", id: "METNUM", estado: "Pendiente", creditos: 4, prereq: ["CALAV"] },
+    { nombre: "ELEMENTARY BUSINESS ENGLISH", id: "EBE", estado: "Pendiente", creditos: 4, prereq: ["ING4"] }
+  ]
+};
+
+    const estados = {
+  MAT1: true,
+  IVU: true,
+  LQG: true,
+  QG: true,
+  IMA: true,
+  ING1: true,
+  CRT1: true,
+  MAT2: false,
+  CRE: true,
+  ING2: true,
+  CRT2: true,
+  EDP: true,
+  ALGO: false,
+  DIBUJO: false,
+  LMC: false,
+  MC: false,
+  CAL1: false,
+  INVAC: true,
+  GEO: false,
+  PMOC: false,
+  ING3: false,
+  PDP: true,
+  FT: false,
+  LFT: false,
+  CAL2: false,
+  TOPO: false,
+  MCNST: false,
+  EST: false,
+  ING4: false,
+  CONST: false,
+  DIN: false,
+  GEOM: false,
+  TCONC: false,
+  CALAV: false,
+  CTD: false,
+  HINFO: true,
+  COMEF: true,
+  CESP: false,
+  MSUE: false,
+  CIIC: false,
+  MFLU: false,
+  ERM: false,
+  GEOT: false,
+  BIM: false,
+  CAR: false,
+  INST: false,
+  HIDC: false,
+  AE1: false,
+  FEMP: false,
+  AE2: false,
+  HIDR: false,
+  SEMIC: false,
+  MSUEA: false,
+  COSTOS: false,
+  ADMINOBRA: false,
+  CCAR: false,
+  ETICA: true,
+  GPROY: false,
+  CIM: false,
+  PAV: false,
+  REHIDR: false,
+  SISG: false,
+  INVFOR: false,
+  CARM: false,
+  SISMO: false,
+  GPIP: false,
+  TALLINV: false,
+  CIIC2: false,
+  VDC: false,
+  SEG: false,
+  SOST: false,
+  FEM: false,
+  METNUM: false,
+  EBE: false
+};
+
+    function crearCurso(curso) {
+      const div = document.createElement("div");
+      div.className = "curso";
+      div.dataset.id = curso.id;
+      div.dataset.prereq = curso.prereq ? curso.prereq.join(",") : "";
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = estados[curso.id] || false;
+      checkbox.addEventListener("change", () => {
+        estados[curso.id] = checkbox.checked;
+        actualizarCursos();
+      });
+      div.appendChild(checkbox);
+      div.appendChild(document.createTextNode(`${curso.nombre} (${curso.estado} – ${curso.creditos || '?'} créditos)`));
+      return div;
+    }
+
+    function actualizarCursos() {
+      document.querySelectorAll(".curso").forEach(div => {
+        const id = div.dataset.id;
+        const prereq = div.dataset.prereq ? div.dataset.prereq.split(",") : [];
+        const aprobado = estados[id];
+
+        if (aprobado) {
+          div.className = "curso aprobado";
+          div.querySelector("input").checked = true;
+        } else if (prereq.length === 0 || prereq.every(p => estados[p])) {
+          div.className = "curso desbloqueado";
+          div.querySelector("input").disabled = false;
+        } else {
+          div.className = "curso bloqueado";
+          div.querySelector("input").disabled = true;
+        }
+      });
+    }
+
+    const mallaDiv = document.getElementById("malla");
+
+    for (let ciclo in cursos) {
+      const div = document.createElement("div");
+      div.className = "ciclo";
+      div.innerHTML = `<h2>Ciclo ${ciclo}</h2>`;
+      cursos[ciclo].forEach(curso => {
+        const cursoDiv = crearCurso(curso);
+        div.appendChild(cursoDiv);
+      });
+      mallaDiv.appendChild(div);
+    }
+
+    actualizarCursos();
+  </script>
+</body>
+</html>
+
